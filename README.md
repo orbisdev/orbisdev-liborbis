@@ -20,5 +20,5 @@ Modules
 LICENSE
 ===================
 
-LIBORBIS is licensend under MIT less some parts with their own license check each module in source directory and headers in include.
+LIBORBIS is licensed under MIT less some parts with their own license check each module in source directory and headers in include.
 
