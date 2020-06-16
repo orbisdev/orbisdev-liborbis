@@ -19,6 +19,4 @@ jobs:
 
     - name: Compile orbislib
       run: |
-        export PS4SDK=$ORBISDEV
-        ls -lR $PS4SDK
         make clean all install
