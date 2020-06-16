@@ -22,20 +22,3 @@ jobs:
         export PS4SDK=$ORBISDEV
         ls -lR $PS4SDK
         make clean all install
-        
-    # - name: Compile samples
-    #   if: ${{ success() }}
-    #   run: |
-    #     cp -rv $PS2SDK/samples ~/
-    #     make -C ~/samples
-    
-    # - name: Get short SHA
-    #   id: slug
-    #   run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
-
-    # - name: Upload artifacts
-    #   if: ${{ success() }}
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: ps2sdk-samples-${{ steps.slug.outputs.sha8 }}
-    #     path: ~/samples
