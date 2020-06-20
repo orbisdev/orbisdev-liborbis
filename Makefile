@@ -37,7 +37,7 @@ install:
 	@cp include/pnginfo.h $(ORBISDEV)/usr/include/orbis
 	@cp include/zlib.h $(ORBISDEV)/usr/include/orbis
 	@cp include/zconf.h $(ORBISDEV)/usr/include/orbis
-	@cp include/sxmlc.h $(ORBISDEV)/include/orbis
+	@cp include/sxmlc.h $(ORBISDEV)/usr/include/orbis
 	@cp include/sxmlsearch.h $(ORBISDEV)/usr/include/orbis
 	@echo "$(TargetFile) Installed!"
 
