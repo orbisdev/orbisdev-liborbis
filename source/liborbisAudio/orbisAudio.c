@@ -219,7 +219,8 @@ if(channel != 0
 || channel != localChannel)
 {
     fprintf(2, "wtf! localChannel:%u '%.8x' %p %p %.8lx\n", channel, channel, argp, argp, *(long*)argp);
-    channel = 0; sleep(2);
+
+    channel = 0; // fix it, must be 0!
 }
 ///static pthread_mutex_t wait_mutex = PTHREAD_MUTEX_INITIALIZER;
     for(i=0; i<ORBISAUDIO_NUM_BUFFERS; i++)
@@ -298,7 +299,7 @@ void orbisAudioDestroyBuffersChannel(unsigned int channel)
         {
             for(int i=0;i<ORBISAUDIO_NUM_BUFFERS;i++)
             {
-// XXX to_fix;         if(orbisAudioConf->channels[channel]->sampleBuffer[i]) free(orbisAudioConf->channels[channel]->sampleBuffer[i]);
+                if(orbisAudioConf->channels[channel]->sampleBuffer[i]) free(orbisAudioConf->channels[channel]->sampleBuffer[i]);
             }
         }
     }
