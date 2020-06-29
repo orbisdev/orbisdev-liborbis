@@ -36,7 +36,7 @@ void orbisPadFinish()
 		}
 		orbisPadConf->orbispad_initialized=-1;
 	
-		debugNetPrintf(DEBUGNET_DEBUG,"[ORBISPAD] %s finished",__FUNCTION__);
+		debugNetPrintf(DEBUGNET_DEBUG,"[ORBISPAD] %s finished\n",__FUNCTION__);
 	}
 }
 
@@ -170,7 +170,6 @@ int orbisPadUpdate()
 		else
 		{
 			orbisPadConf->buttonsReleased=0;
-			
 		}
 		orbisPadConf->buttonsHold=actualButtons&lastButtons;
 		return 0;
