@@ -107,7 +107,6 @@ int orbisAudioCreateBuffersChannel(unsigned int channel, unsigned int samples, u
                     fprintf(1, "[orbisAudio] buffer %d for audio channel %d created (%db)\n", i, channel, size * samples);  
                 }
                 orbisAudioConf->channels[channel]->stereo = format;
-                fprintf(1, "setting format:%d\n", format);
             }
             else fprintf(1, "[orbisAudio] audio channel %d was already initialized\n", channel);
         }
@@ -204,25 +203,26 @@ int orbisAudioPlayBlock(unsigned int channel,unsigned int vol1,unsigned int vol2
 
 void * orbisAudioChannelThread(void *argp)
 {
-    fprintf(1, "-- audio thread --\n");
-    int i,ret;
+    //fprintf(1, "-- audio thread --\n");
+    int i, ret;
 
     OrbisAudioCallback callback = NULL;
-    unsigned short    *bufMono;
-    unsigned short    *bufStereo;
+    // sound samples are shorts, s16le
     void              *buf;
     unsigned int       samples;
     unsigned int       channel = *((unsigned int*)argp);
-long *p = (long*)argp;
-fprintf(2,"localChannel:%ld %d '%.16x' %p %lx %zu %.16x, %.16x\n", *p, (int)channel, channel, argp, (long)argp, sizeof(long), *(int*)argp, *((int*)argp));
-if(channel != 0
-|| channel != localChannel)
-{
-    fprintf(2, "wtf! localChannel:%u '%.8x' %p %p %.8lx\n", channel, channel, argp, argp, *(long*)argp);
 
-    channel = 0; // fix it, must be 0!
-}
-///static pthread_mutex_t wait_mutex = PTHREAD_MUTEX_INITIALIZER;
+//long *p = (long*)argp;
+//fprintf(2,"localChannel:%ld %d '%.16x' %p %lx %zu %.16x, %.16x\n", *p, (int)channel, channel, argp, (long)argp, sizeof(long), *(int*)argp, *((int*)argp));
+
+    if(channel != 0
+    || channel != localChannel)
+    {
+        fprintf(2, "wtf! localChannel:%u '%.8x' %p %p %.8lx\n", channel, channel, argp, argp, *(long*)argp);
+
+        channel = 0; // fix it, must be 0!
+    }
+    //static pthread_mutex_t wait_mutex = PTHREAD_MUTEX_INITIALIZER;
     for(i=0; i<ORBISAUDIO_NUM_BUFFERS; i++)
     {
         size_t size = 0;
@@ -235,17 +235,18 @@ if(channel != 0
             case  1: size = sizeof(OrbisAudioStereoSample);
             default: break;
         }
-    //fprintf(1, "size: %zu * %d\n", size, orbisAudioConf->channels[channel]->samples[i]);
+//fprintf(1, "size: %zu * %d\n", size, orbisAudioConf->channels[channel]->samples[i]);
         size *= orbisAudioConf->channels[channel]->samples[i];
 //fprintf(1, "i:%d, size: %zu %p\n", i, size, orbisAudioConf->channels[channel]->sampleBuffer[i]);
-//pthread_mutex_lock(&wait_mutex);
+        //pthread_mutex_lock(&wait_mutex);
         memset(orbisAudioConf->channels[channel]->sampleBuffer[i], 0, size);
-//pthread_mutex_unlock(&wait_mutex);
+        //pthread_mutex_unlock(&wait_mutex);
     }
     //pthread_mutex_unlock(&wait_mutex);
 
     fprintf(1, "[orbisAudio] orbisAudioChannelThread %d %d ready to have a lot of fun!\n", orbisAudioConf->orbisaudio_stop, orbisAudioConf->channels[channel]->paused);
-    orbisAudioConf->orbisaudio_stop = 0; // XXX reset it
+    // reset state and start it
+    orbisAudioConf->orbisaudio_stop = 0;
 
     while(!orbisAudioConf->orbisaudio_stop)
     {
@@ -257,31 +258,24 @@ if(channel != 0
 
             if(callback && !orbisAudioConf->channels[channel]->paused)
             {
-                /* User callback to fill buffer */
+                /* Use user callback to fill buffer */
                 callback(buf,samples,orbisAudioConf->channels[channel]->userData);
             }
             else
             {
-                /* Fill buffer with silence */
-                if (orbisAudioConf->channels[channel]->stereo == 1)
-                {
-                    bufStereo = buf; for(i=0; i<samples; i++) { *(bufStereo++) = 0; }
-                }
-                else
-                {
-                    bufMono = buf;   for(i=0; i<samples; i++) { *(bufMono++) = 0; }
-                }
+                /* Fill buffer with silence (stereo/mono) */
+                memset(buf, 0, samples * sizeof(short)
+                                       * (orbisAudioConf->channels[channel]->stereo + 1));
             }
 
             /* Play sound */
             ret = orbisAudioPlayBlock(channel,orbisAudioConf->channels[channel]->leftVol,orbisAudioConf->channels[channel]->rightVol,buf);
-            if(ret<0)
-            {
-                fprintf(2, "[orbisAudio] orbisAudioPlayBlock error 0x%08X \n",ret);
-            }
+            if(ret<0) { fprintf(2, "[orbisAudio] orbisAudioPlayBlock error 0x%08X \n",ret); }
+
             /* Switch active buffer */
             orbisAudioConf->channels[channel]->currentBuffer=(orbisAudioConf->channels[channel]->currentBuffer?0:1);
         }
+        /* wait a little */
         sceKernelUsleep(1000);
     }    
     fprintf(1, "[orbisAudio] stop:%d, orbisAudioChannelThread exit...\n",orbisAudioConf->orbisaudio_stop);
