@@ -18,24 +18,23 @@ extern "C" {
 #define DEBUGNET_NONE 0
 #define DEBUGNET_INFO 1
 #define DEBUGNET_ERROR 2
-#define DEBUGNET_DEBUG 3	
+#define DEBUGNET_DEBUG 3
 
 typedef struct debugNetConfiguration
 {
 	int debugnet_initialized;
 	int SocketFD;
 	int logLevel;
-	
 } debugNetConfiguration;
 
 int debugNetInit(char *serverIp, int port, int level);
 int debugNetInitWithConf(debugNetConfiguration *conf);
-debugNetConfiguration *debugNetGetConf();
+debugNetConfiguration *debugNetGetConf(void);
 int debugNetSetConf(debugNetConfiguration *conf);
-void debugNetFinish();
+void debugNetFinish(void);
 void debugNetPrintf(int level, char* format, ...);
 void debugNetSetLogLevel(int level);
-int debugNetCreateConf();
+int debugNetCreateConf(void);
 
 
 #ifdef __cplusplus
