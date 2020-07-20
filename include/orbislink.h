@@ -37,12 +37,12 @@ extern "C" {
 #endif
 
 
-
-int initOrbisLinkAppInternal();
-int initOrbisLinkAppVanilla();
-int initOrbisLinkAppVanillaGl();
-int initOrbisLinkAppVanillaGlMSX();
-OrbisGlobalConf * orbisLinkGetGlobalConf();
+int initOrbisLinkApp(void);
+int initOrbisLinkAppInternal(void);
+int initOrbisLinkAppVanilla(void);
+int initOrbisLinkAppVanillaGl(void);
+int initOrbisLinkAppVanillaGlMSX(void);
+OrbisGlobalConf * orbisLinkGetGlobalConf(void);
 
 
 #ifdef __cplusplus
