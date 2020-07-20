@@ -17,16 +17,25 @@
 
 #include "orbisAudio.h"
 
-#if defined __PS4__
+
+#if defined (__PS4__)
+
 #include <ps4sdk.h>
 #include <debugnet.h>
 #define  fprintf  debugNetPrintf
-/*
-#define INFO  1 stdout
-#define ERROR 2 stderr
-#define DEBUG 3
-*/
-#elif defined HAVE_LIBAO
+#define  ERROR    DEBUGNET_ERROR
+#define  DEBUG    DEBUGNET_DEBUG
+#define  INFO     DEBUGNET_INFO
+
+
+#elif defined HAVE_LIBAO // on pc
+
+#include <stdio.h>
+#define  debugNetPrintf  fprintf
+#define  ERROR           stderr
+#define  DEBUG           stdout
+#define  INFO            stdout
+
 // we wrap sce calls below to use default audio device!
 #define  sceKernelUsleep  usleep
 #include <ao/ao.h>
@@ -53,7 +62,7 @@ int sceAudioOutInit(void)
 int sceAudioOutOpen(int unused, int localChannel, int zero, int numSamples, int frequency, int unused_format)
 {
     device = ao_open_live(default_driver, &format, NULL );
-    if(device == NULL) { fprintf(2, "Error opening device.\n"); return -1; }
+    if(device == NULL) { fprintf(ERROR, "Error opening device.\n"); return -1; }
 
     return default_driver;
 }
@@ -104,15 +113,16 @@ int orbisAudioCreateBuffersChannel(unsigned int channel, unsigned int samples, u
                 {
                     orbisAudioConf->channels[channel]->sampleBuffer[i] = (short*)malloc(size * samples);
                     orbisAudioConf->channels[channel]->samples     [i] = samples;
-                    fprintf(1, "[orbisAudio] buffer %d for audio channel %d created (%db)\n", i, channel, size * samples);  
+                    fprintf(DEBUG, "[orbisAudio] buffer %d for audio channel %d created (%db)\n", i, channel, size * samples);
                 }
                 orbisAudioConf->channels[channel]->stereo = format;
+                //fprintf(DEBUG, "setting format:%d\n", format);
             }
-            else fprintf(1, "[orbisAudio] audio channel %d was already initialized\n", channel);
+            else fprintf(DEBUG, "[orbisAudio] audio channel %d was already initialized\n", channel);
         }
         else return -1;
     }
-    else { fprintf(2, "[orbisAudio] orbisAudioCreateBuffersChannel orbisAudioConf is not created\n"); return -1;    }
+    else { fprintf(ERROR, "[orbisAudio] orbisAudioCreateBuffersChannel orbisAudioConf is not created\n"); return -1;    }
 
     return 0;
 }
@@ -173,9 +183,9 @@ int orbisAudioInitWithConf(OrbisAudioConfig *conf)
     int ret = orbisAudioSetConf(conf);
     if(ret)
     {
-        fprintf(1, "liborbisaudio already initialized using configuration external\n");
-        fprintf(1, "orbisaudio_initialized=%d\n", orbisAudioConf->orbisaudio_initialized);
-        fprintf(1, "ready to have a lot of fun...\n");
+        fprintf(DEBUG, "liborbisaudio already initialized using configuration external\n");
+        fprintf(DEBUG, "orbisaudio_initialized=%d\n", orbisAudioConf->orbisaudio_initialized);
+        fprintf(DEBUG, "ready to have a lot of fun...\n");
         return orbisAudioConf->orbisaudio_initialized;
     }
     else return 0;
@@ -203,7 +213,7 @@ int orbisAudioPlayBlock(unsigned int channel,unsigned int vol1,unsigned int vol2
 
 void * orbisAudioChannelThread(void *argp)
 {
-    //fprintf(1, "-- audio thread --\n");
+    fprintf(DEBUG, "-- audio thread --\n");
     int i, ret;
 
     OrbisAudioCallback callback = NULL;
@@ -218,7 +228,7 @@ void * orbisAudioChannelThread(void *argp)
     if(channel != 0
     || channel != localChannel)
     {
-        fprintf(2, "wtf! localChannel:%u '%.8x' %p %p %.8lx\n", channel, channel, argp, argp, *(long*)argp);
+    //printf("wtf! localChannel:%u '%.8x' %p %p %.8lx\n", channel, channel, argp, argp, *(long*)argp);
 
         channel = 0; // fix it, must be 0!
     }
@@ -226,25 +236,25 @@ void * orbisAudioChannelThread(void *argp)
     for(i=0; i<ORBISAUDIO_NUM_BUFFERS; i++)
     {
         size_t size = 0;
-//fprintf(1, "\n%u %p, %u, i:%d, size: %zu, %p\n", channel, argp, *(unsigned int*)argp, i, size, orbisAudioConf);
+//fprintf(DEBUG, "\n%u %p, %u, i:%d, size: %zu, %p\n", channel, argp, *(unsigned int*)argp, i, size, orbisAudioConf);
 
-//fprintf(1, "i:%d stereo:%d\n", i, orbisAudioConf->channels[channel]->stereo);
+//fprintf(DEBUG, "i:%d stereo:%d\n", i, orbisAudioConf->channels[channel]->stereo);
         switch(orbisAudioConf->channels[channel]->stereo)
         {
             case  0: size = sizeof(OrbisAudioMonoSample);   break;
             case  1: size = sizeof(OrbisAudioStereoSample);
             default: break;
         }
-//fprintf(1, "size: %zu * %d\n", size, orbisAudioConf->channels[channel]->samples[i]);
+    //fprintf(DEBUG, "size: %zu * %d\n", size, orbisAudioConf->channels[channel]->samples[i]);
         size *= orbisAudioConf->channels[channel]->samples[i];
-//fprintf(1, "i:%d, size: %zu %p\n", i, size, orbisAudioConf->channels[channel]->sampleBuffer[i]);
+//fprintf(DEBUG, "i:%d, size: %zu %p\n", i, size, orbisAudioConf->channels[channel]->sampleBuffer[i]);
         //pthread_mutex_lock(&wait_mutex);
         memset(orbisAudioConf->channels[channel]->sampleBuffer[i], 0, size);
         //pthread_mutex_unlock(&wait_mutex);
     }
     //pthread_mutex_unlock(&wait_mutex);
 
-    fprintf(1, "[orbisAudio] orbisAudioChannelThread %d %d ready to have a lot of fun!\n", orbisAudioConf->orbisaudio_stop, orbisAudioConf->channels[channel]->paused);
+    fprintf(DEBUG, "[orbisAudio] orbisAudioChannelThread %d %d ready to have a lot of fun!\n", orbisAudioConf->orbisaudio_stop, orbisAudioConf->channels[channel]->paused);
     // reset state and start it
     orbisAudioConf->orbisaudio_stop = 0;
 
@@ -270,7 +280,7 @@ void * orbisAudioChannelThread(void *argp)
 
             /* Play sound */
             ret = orbisAudioPlayBlock(channel,orbisAudioConf->channels[channel]->leftVol,orbisAudioConf->channels[channel]->rightVol,buf);
-            if(ret<0) { fprintf(2, "[orbisAudio] orbisAudioPlayBlock error 0x%08X \n",ret); }
+            if(ret<0) { fprintf(ERROR, "[orbisAudio] orbisAudioPlayBlock error 0x%08X \n",ret); }
 
             /* Switch active buffer */
             orbisAudioConf->channels[channel]->currentBuffer=(orbisAudioConf->channels[channel]->currentBuffer?0:1);
@@ -278,7 +288,7 @@ void * orbisAudioChannelThread(void *argp)
         /* wait a little */
         sceKernelUsleep(1000);
     }    
-    fprintf(1, "[orbisAudio] stop:%d, orbisAudioChannelThread exit...\n",orbisAudioConf->orbisaudio_stop);
+    fprintf(DEBUG, "[orbisAudio] stop:%d, orbisAudioChannelThread exit...\n",orbisAudioConf->orbisaudio_stop);
     //scePthreadExit(0);
     pthread_join(orbisAudioConf->channels[channel]->threadHandle, NULL);
 
@@ -362,16 +372,16 @@ int orbisAudioInitChannelWithoutCallback(unsigned int channel, unsigned int samp
                 ret = orbisAudioCreateBuffersChannel(localChannel,numSamples,format);
                 if(ret!=0)
                 {
-                    fprintf(2, "[orbisAudio] error creating buffers for audio channel %d\n",localChannel);
+                    fprintf(ERROR, "[orbisAudio] error creating buffers for audio channel %d\n",localChannel);
                     orbisAudioDestroyBuffersChannel(localChannel);
                     orbisAudioConf->channels[localChannel]->orbisaudiochannel_initialized=-1;
                 }
                 else
                 {
-                    fprintf(1, "[orbisAudio] sceAudioOutOpen %d samples\n",numSamples);
+                    fprintf(DEBUG, "[orbisAudio] sceAudioOutOpen %d samples\n",numSamples);
                     
                     handle=sceAudioOutOpen(0xff,localChannel,0,numSamples,frequency,format);
-                    fprintf(1, "handle: %d\n", handle);
+                    fprintf(DEBUG, "handle: %d\n", handle);
                     if(handle>0)
                     {
                         orbisAudioConf->channels[localChannel]->audioHandle=handle; 
@@ -380,14 +390,14 @@ int orbisAudioInitChannelWithoutCallback(unsigned int channel, unsigned int samp
                     }
                     else
                     {
-                        fprintf(2, "[orbisAudio] error opening audio channel %d 0x%08X\n",localChannel, handle);
+                        fprintf(ERROR, "[orbisAudio] error opening audio channel %d 0x%08X\n",localChannel, handle);
                         orbisAudioConf->channels[localChannel]->orbisaudiochannel_initialized = -1;
                     }
                 }
             }
             else
             {
-                fprintf(1, "[orbisAudio] audio channel %d already initialized",localChannel);
+                fprintf(DEBUG, "[orbisAudio] audio channel %d already initialized",localChannel);
             }
         }
     }
@@ -420,16 +430,16 @@ int orbisAudioInitChannel(unsigned int channel, unsigned int samples, unsigned i
                 ret = orbisAudioCreateBuffersChannel(localChannel, numSamples, format);
                 if(ret)
                 {
-                    fprintf(2, "[orbisAudio] error creating buffers for audio channel %d\n", localChannel);
+                    fprintf(ERROR, "[orbisAudio] error creating buffers for audio channel %d\n", localChannel);
                     orbisAudioDestroyBuffersChannel(localChannel);
                     orbisAudioConf->channels[localChannel]->orbisaudiochannel_initialized = -1;
                 }
                 else
                 {
-                    fprintf(1, "[orbisAudio] sceAudioOutOpen %d samples\n",numSamples);
+                    fprintf(DEBUG, "[orbisAudio] sceAudioOutOpen %d samples\n",numSamples);
                     
                     handle=sceAudioOutOpen(0xff,localChannel,0,numSamples,frequency,format);
-//fprintf(1, "handle:%d\n", handle);
+//fprintf(DEBUG, "handle:%d\n", handle);
                     if(handle>0)
                     {
                         // protect the localChannel variable
@@ -444,24 +454,24 @@ int orbisAudioInitChannel(unsigned int channel, unsigned int samples, unsigned i
                                  (void *)&localChannel);
 
                         //pthread_mutex_lock(&wait_mutex);
-//fprintf(1, "creating thread res:%d\n", ret);
+//fprintf(DEBUG, "creating thread res:%d\n", ret);
     //pthread_mutex_unlock(&wait_mutex);
     //pthread_mutex_destroy(&wait_mutex);
 //usleep(2000);
                         if(ret==0)
                         {
-                            fprintf(1, "[orbisAudio] audio channel %u thread UID: 0x%08lX created\n", localChannel, orbisAudioConf->channels[localChannel]->threadHandle);
+                            fprintf(DEBUG, "[orbisAudio] audio channel %u thread UID: 0x%08lX created\n", localChannel, orbisAudioConf->channels[localChannel]->threadHandle);
 
                             orbisAudioConf->channels[localChannel]->orbisaudiochannel_initialized = 1;
                             return 0;
                         }
                         else
                         {
-                            fprintf(2, "[orbisAudio] audio channel %u thread could not create error: 0x%08X\n",localChannel, ret);
+                            fprintf(ERROR, "[orbisAudio] audio channel %u thread could not create error: 0x%08X\n",localChannel, ret);
                             //scePthreadCancel(orbisAudioConf->channels[localChannel]->threadHandle);
                             pthread_join(orbisAudioConf->channels[localChannel]->threadHandle, NULL);
 
-                            fprintf(1, "[orbisAudio] closing audio channel %d\n", channel);
+                            fprintf(DEBUG, "[orbisAudio] closing audio channel %d\n", channel);
 
                             sceAudioOutClose(orbisAudioConf->channels[channel]->audioHandle);
 
@@ -473,14 +483,14 @@ int orbisAudioInitChannel(unsigned int channel, unsigned int samples, unsigned i
                     }
                     else
                     {
-                        fprintf(2, "[orbisAudio] error opening audio channel %u 0x%08X\n",localChannel, handle);
+                        fprintf(DEBUG, "[orbisAudio] error opening audio channel %u 0x%08X\n",localChannel, handle);
                         orbisAudioConf->channels[localChannel]->orbisaudiochannel_initialized = -1;
                     }
                 }
             }
             else
             {
-                fprintf(1, "[orbisAudio] audio channel %u already initialized",localChannel);
+                fprintf(DEBUG, "[orbisAudio] audio channel %u already initialized",localChannel);
             }
         }
     }
@@ -550,11 +560,11 @@ void orbisAudioFinish()
                     orbisAudioConf->channels[i]->threadHandle=0;
 
                     sceAudioOutClose(orbisAudioConf->channels[i]->audioHandle);
-                    fprintf(1, "[orbisAudio] closing audio handle\n");
+                    fprintf(DEBUG, "[orbisAudio] closing audio handle\n");
                     
                     orbisAudioConf->channels[i]->audioHandle=-1;
                     orbisAudioDestroyBuffersChannel(i);
-                    fprintf(1, "[orbisAudio] free buffers channel\n");
+                    fprintf(DEBUG, "[orbisAudio] free buffers channel\n");
                     
                     orbisAudioConf->channels[i]->orbisaudiochannel_initialized=-1;  
                 }
@@ -562,7 +572,7 @@ void orbisAudioFinish()
             }
         }
         //free(orbisAudioConf);
-        fprintf(1, "[orbisAudio] finished\n");
+        fprintf(DEBUG, "[orbisAudio] finished\n");
     }
 }
 
@@ -573,18 +583,18 @@ int orbisAudioInit()
     int ret = sceAudioOutInit();
     if(ret<0)
     {
-        fprintf(2, "[orbisAudio] sceAudioOutInit error 0x%08X\n",ret); return -1;
+        fprintf(ERROR, "[orbisAudio] sceAudioOutInit error 0x%08X\n",ret); return -1;
     }
-    fprintf(1, "[orbisAudio] sceAudioOutInit return %d\n",ret);
+    fprintf(DEBUG, "[orbisAudio] sceAudioOutInit return %d\n",ret);
 
     if(orbisAudioCreateConf() == 0)
     {
-        fprintf(1, "[orbisAudio] initialized!\n");
+        fprintf(DEBUG, "[orbisAudio] initialized!\n");
         return orbisAudioConf->orbisaudio_initialized;
     }
     if (orbisAudioConf->orbisaudio_initialized == 1) 
     {
-        fprintf(1, "[orbisAudio] is already initialized!\n");
+        fprintf(DEBUG, "[orbisAudio] is already initialized!\n");
         return orbisAudioConf->orbisaudio_initialized;
     }
     return -1;
