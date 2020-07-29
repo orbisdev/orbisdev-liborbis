@@ -43,6 +43,7 @@ int initOrbisLinkAppVanilla(void);
 int initOrbisLinkAppVanillaGl(void);
 int initOrbisLinkAppVanillaGlMSX(void);
 OrbisGlobalConf * orbisLinkGetGlobalConf(void);
+void finishOrbisLinkApp(void);
 
 
 #ifdef __cplusplus

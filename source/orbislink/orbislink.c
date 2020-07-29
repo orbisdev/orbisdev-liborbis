@@ -18,7 +18,8 @@
 #include <orbislink.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
-
+#include <unistd.h>
+#include <orbis/libkernel.h>
 
 
 OrbisGlobalConf globalConf;
@@ -192,7 +193,7 @@ static bool do_patches(int level)
 	}
 	return true;
 }
-void finishOrbisLinkApp()
+void finishOrbisLinkApp(void)
 {
 	if(audioEnabled)
 	orbisAudioFinish();
