@@ -4,7 +4,7 @@ FROM $BASE_DOCKER_IMAGE
 
 COPY . /src
 
-RUN apk add build-base clang
+RUN apk add build-base ncurses-dev
 RUN cd /src && make clean all install
 
 # Second stage of Dockerfile
