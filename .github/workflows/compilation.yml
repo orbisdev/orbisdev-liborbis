@@ -15,7 +15,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apk add build-base clang
+        apk add build-base ncurses-dev
 
     - name: Compile orbislib
       run: |
