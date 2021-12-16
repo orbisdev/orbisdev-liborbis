@@ -18,26 +18,26 @@ $(OutPath)/$(TargetFile).a: $(ObjectFiles)
 	$(archive)
 
 install:
-	@cp $(OutPath)/$(TargetFile).a $(ORBISDEV)/usr/lib
-	@cp include/debugnet.h $(ORBISDEV)/usr/include/orbis
-	@mkdir -p $(ORBISDEV)/usr/include/orbis/nfsc
-	@cp include/nfsc/*.h $(ORBISDEV)/usr/include/orbis/nfsc	
-	@cp include/orbisNfs.h $(ORBISDEV)/usr/include/orbis
-	@cp include/orbisPad.h $(ORBISDEV)/usr/include/orbis
-	@cp include/orbisKeyboard.h $(ORBISDEV)/usr/include/orbis
-	@cp include/kb.h $(ORBISDEV)/usr/include/orbis
-	@cp include/orbisAudio.h $(ORBISDEV)/usr/include/orbis
-	@cp include/modplayer.h $(ORBISDEV)/usr/include/orbis
-	@cp include/pl_ini.h $(ORBISDEV)/usr/include/orbis
-	@cp include/orbislink.h $(ORBISDEV)/usr/include/orbis
-	@cp include/png.h $(ORBISDEV)/usr/include/orbis
-	@cp include/pngconf.h $(ORBISDEV)/usr/include/orbis
-	@cp include/pnglibconf.h $(ORBISDEV)/usr/include/orbis
-	@cp include/pngstruct.h $(ORBISDEV)/usr/include/orbis
-	@cp include/pnginfo.h $(ORBISDEV)/usr/include/orbis
-	@cp include/zlib.h $(ORBISDEV)/usr/include/orbis
-	@cp include/zconf.h $(ORBISDEV)/usr/include/orbis
-	@cp include/sxmlc.h $(ORBISDEV)/usr/include/orbis
-	@cp include/sxmlsearch.h $(ORBISDEV)/usr/include/orbis
+	@cp $(OutPath)/$(TargetFile).a $(DESTDIR)$(ORBISDEV)/usr/lib
+	@cp include/debugnet.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@mkdir -p $(DESTDIR)$(ORBISDEV)/usr/include/orbis/nfsc
+	@cp include/nfsc/*.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis/nfsc
+	@cp include/orbisNfs.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/orbisPad.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/orbisKeyboard.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/kb.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/orbisAudio.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/modplayer.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/pl_ini.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/orbislink.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/png.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/pngconf.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/pnglibconf.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/pngstruct.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/pnginfo.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/zlib.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/zconf.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/sxmlc.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
+	@cp include/sxmlsearch.h $(DESTDIR)$(ORBISDEV)/usr/include/orbis
 	@echo "$(TargetFile) Installed!"
 
