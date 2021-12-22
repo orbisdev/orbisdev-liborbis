@@ -251,8 +251,11 @@ int Mod_Load(char *filename)
     int index = 0;
     int numsamples;
     char modname[21];
-    int fd;	
-    if ((fd = orbisNfsOpen(filename, O_RDONLY, 0)) > 0) {
+    int fd = orbisNfsOpen(filename, O_RDONLY, 0);
+	if (fd < 0)
+	{
+		debugNetPrintf(DEBUGNET_DEBUG, "file could not be opened\n");
+	}
 	//  opened file, so get size now
 	size = orbisNfsLseek(fd, 0, SEEK_END);
 	orbisNfsLseek(fd, 0, SEEK_SET);
@@ -260,16 +263,15 @@ int Mod_Load(char *filename)
 	memset(data, 0, size + 8);
 	if (data != 0) {	// Read file in
 	    orbisNfsRead(fd, data, size);
+	
 	} else {
 	    printf("Error allocing\n");
+		
 	    orbisNfsClose(fd);
 	    return 0;
 	}
 	// Close file
 	orbisNfsClose(fd);
-    } else {			//if we couldn't open the file
-	return 0;
-    }
 
     //BPM_RATE = 130;
 	BPM_RATE = 125; //PAL
