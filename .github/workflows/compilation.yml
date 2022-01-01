@@ -19,4 +19,4 @@ jobs:
 
     - name: Compile orbislib
       run: |
-        make clean all install
+        ./build.sh
