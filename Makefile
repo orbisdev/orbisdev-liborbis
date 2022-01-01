@@ -1,4 +1,4 @@
-SUBDIRS = orbisdev-libkernelUtil orbisdev-libdebugnet orbisdev-libz orbisdev-liborbisPad orbisdev-liborbisAudio orbisdev-libmod orbisdev-liborbisKeyboard orbisdev-liborbisNfs orbisdev-libSQLite orbisdev-liborbisLink
+SUBDIRS = orbisdev-utils orbisdev-libkernelUtil orbisdev-libdebugnet orbisdev-libz orbisdev-liborbisPad orbisdev-liborbisAudio orbisdev-libmod orbisdev-liborbisKeyboard orbisdev-liborbisNfs orbisdev-libSQLite orbisdev-liborbisLink
 
 
 
