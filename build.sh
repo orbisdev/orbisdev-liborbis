@@ -1,5 +1,5 @@
 #!/bin/bash -x
-SUBDIRS="orbisdev-utils orbisdev-libkernelUtil orbisdev-libdebugnet orbisdev-libz orbisdev-liborbisPad orbisdev-liborbisAudio orbisdev-libmod orbisdev-liborbisKeyboard orbisdev-liborbisNfs orbisdev-libSQLite orbisdev-liborbisLink"
+SUBDIRS="orbisdev-utils orbisdev-libkernelUtil orbisdev-libdebugnet orbisdev-libz orbisdev-liborbisPad orbisdev-liborbisAudio orbisdev-liborbisNfs orbisdev-liborbisKeyboard orbisdev-libmod orbisdev-libSQLite orbisdev-liborbisLink"
 PROC_NR=$(getconf _NPROCESSORS_ONLN)
 
 ## Download the source code.
