@@ -4,8 +4,8 @@ FROM $BASE_DOCKER_IMAGE
 
 COPY . /src
 
-RUN apk add build-base ncurses-dev
-RUN cd /src && make clean all install
+RUN apk add bash build-base git ncurses-dev
+RUN cd /src && ./build.sh
 
 # Second stage of Dockerfile
 FROM alpine:latest  
