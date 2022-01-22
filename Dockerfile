@@ -4,8 +4,14 @@ FROM $BASE_DOCKER_IMAGE
 
 COPY . /src
 
-RUN apk add build-base ncurses-dev
-RUN cd /src && make clean all install
+RUN apk add bash build-base git ncurses-dev
+
+# oldyear
+# RUN cd /src && make clean all install
+
+# newyear: recall modular script
+RUN git clone -b newyar https://github.com/orbisdev/orbisdev-liborbis
+RUN orbisdev-liborbis/build.sh
 
 # Second stage of Dockerfile
 FROM alpine:latest  
