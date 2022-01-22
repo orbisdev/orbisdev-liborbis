@@ -12,11 +12,13 @@ jobs:
     container: orbisdev/orbisdev-sdkvanilla:latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: newyar
 
     - name: Install dependencies
       run: |
-        apk add build-base ncurses-dev
+        apk add bash build-base git ncurses-dev
 
     - name: Compile orbislib
       run: |
-        ./build.sh
+        bash ./build.sh
